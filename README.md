@@ -1,6 +1,6 @@
 # Better Youtube
 
-A Chrome/Brave browser extension that gives you full control over your YouTube browsing experience. Filter content by type, length, or keyword, and maintain a permanent portable watch history that YouTube cannot reset.
+A Firefox browser extension that gives you full control over your YouTube browsing experience. Filter content by type, length, or keyword, and maintain a permanent portable watch history that YouTube cannot reset.
 
 ## Features
 
@@ -28,10 +28,10 @@ A Chrome/Brave browser extension that gives you full control over your YouTube b
 ## Installation
 
 1. Download or clone this repository to your computer.
-2. Open a new tab in Firefox and navigate to about:debugging.
-3. Click on This Firefox in the left-hand sidebar.
-4. Click the Load Temporary Add-on... button.
-5. Open your extension folder and select the manifest.json file (or any file within the directory).
+2. Open a new tab in Firefox and navigate to "about:addons"
+3. Click on the gear on the right side of the panel (center of screen on desktop).
+4. Click the "Install Add-on From File..." button.
+5. Open your extension folder and select the manifest.json file.
 6. Navigate to YouTube — the extension is active immediately.
 
 ## Usage
