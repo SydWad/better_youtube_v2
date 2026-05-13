@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "Better YouTube v2",
+  "version": "1.0.0",
+  "description": "Customize the YouTube interface and store a permanent, searchable watch history.",
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "downloads",
+    "tabs",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "*://i.ytimg.com/*"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [{
+      "id": "ruleset_1",
+      "enabled": false,
+      "path": "rules.json"
+    }]
+  },
+  "web_accessible_resources": [{
+    "resources": ["icons/icon128.png", "icons/icon48.png", "icons/icon16.png"],
+    "matches": ["https://www.youtube.com/*"]
+  }],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": [
+        "content/shared.js",
+        "content/actor.js",
+        "content/flag_shorts.js",
+        "content/flag_membersonly.js",
+        "content/flag_watched.js",
+        "content/advanced/flag_autodubed.js",
+        "content/advanced/flag_blacklist.js",
+        "content/advanced/flag_livestreams.js",
+        "content/advanced/flag_playlists.js",
+        "content/advanced/flag_viewcount.js",
+        "content/advanced/flag_length.js",
+        "content/advanced/flag_upcoming-scheduled.js",
+        "content/master.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.youtube.com/feed/history*"],
+      "js": ["history_scroller.js", "history_overlay.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "UI/popup.html",
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "UI/options.html"
+}

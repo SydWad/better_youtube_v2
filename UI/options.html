@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Better YouTube v2 — Options</title>
+  <style>
+    :root {
+      --bg:           #000;
+      --surface:      #111;
+      --surface-2:    #1a1a1a;
+      --border:       #2a2a2a;
+      --text:         #fff;
+      --text-muted:   #fff;
+      --text-dim:     #fff;
+      --accent:       #e03333;
+      --accent-blue:  #2266cc;
+      --accent-green: #33aa44;
+      --toggle-off:   #2a2a2a;
+      --placeholder:  #555;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg:           #f5f0e8;
+        --surface:      #ede8de;
+        --surface-2:    #e5e0d5;
+        --border:       #d0c8b8;
+        --text:         #1a3a6b;
+        --text-muted:   #000;
+        --text-dim:     #000;
+        --accent:       #b89000;
+        --accent-blue:  #1a5a9a;
+        --accent-green: #2a8040;
+        --toggle-off:   #ccc5b5;
+        --placeholder:  #999;
+      }
+    }
+    :root[data-theme="light"] {
+      --bg:           #f5f0e8;
+      --surface:      #ede8de;
+      --surface-2:    #e5e0d5;
+      --border:       #d0c8b8;
+      --text:         #1a3a6b;
+      --text-muted:   #000;
+      --text-dim:     #000;
+      --accent:       #b89000;
+      --accent-blue:  #1a5a9a;
+      --accent-green: #2a8040;
+      --toggle-off:   #ccc5b5;
+      --placeholder:  #999;
+    }
+    :root[data-theme="dark"] {
+      --bg:           #000;
+      --surface:      #111;
+      --surface-2:    #1a1a1a;
+      --border:       #2a2a2a;
+      --text:         #fff;
+      --text-muted:   #fff;
+      --text-dim:     #fff;
+      --accent:       #e03333;
+      --accent-blue:  #2266cc;
+      --accent-green: #33aa44;
+      --toggle-off:   #2a2a2a;
+      --placeholder:  #555;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px; background: var(--bg); color: var(--text);
+      padding: 32px; max-width: 600px;
+    }
+    #dev-video-wrap { display: none; }
+    @media (min-width: 1000px) {
+      body { max-width: none; display: flex; align-items: flex-start; gap: 40px; }
+      #page-content { width: 600px; flex-shrink: 0; }
+      #dev-video-wrap {
+        flex-shrink: 0; width: 480px; border-radius: 8px; overflow: hidden;
+        margin-top: 8px; margin-left: auto; box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      }
+      #dev-video-wrap.visible { display: block; }
+      #dev-video-wrap video { width: 100%; display: block; }
+    }
+
+    input::placeholder, textarea::placeholder { color: var(--placeholder); }
+
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    h1 { font-size: 16px; font-weight: 600; color: var(--accent); letter-spacing: 0.03em; }
+
+    #opt-theme-btn {
+      height: 28px; padding: 0 10px; border: 1px solid var(--border); border-radius: 3px;
+      background: var(--surface-2); cursor: pointer; font-size: 10px; font-weight: 700;
+      color: var(--text-muted); font-family: inherit; letter-spacing: 0.06em;
+      transition: background 0.15s; display: flex; align-items: center;
+    }
+    #opt-theme-btn:hover { filter: brightness(1.2); }
+    #opt-theme-btn[data-theme="light"] { color: var(--accent); border-color: var(--accent); }
+    #opt-theme-btn[data-theme="dark"]  { color: var(--accent-blue); border-color: var(--accent-blue); }
+
+    /* Sections */
+    .section { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+    .section-privacy { border: 2px solid var(--accent); }
+    .section-privacy > .section-header { color: var(--accent); }
+    .section-header {
+      background: var(--surface-2); padding: 10px 14px;
+      font-size: 11px; font-weight: 600; color: var(--text-muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .section-header.accent { color: var(--accent); }
+
+    /* Option rows */
+    .option-row {
+      padding: 14px; display: flex; align-items: center;
+      justify-content: space-between; border-top: 1px solid var(--border);
+    }
+    .option-label { font-size: 13px; color: var(--text); }
+    .option-desc  { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+    /* Toggle */
+    .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; margin-left: 16px; }
+    .toggle input { display: none; }
+    .toggle-track {
+      position: absolute; inset: 0; background: var(--toggle-off);
+      border-radius: 11px; cursor: pointer; transition: background 0.2s;
+    }
+    .toggle-track::after {
+      content: ''; position: absolute; width: 16px; height: 16px;
+      background: #555; border-radius: 50%; top: 3px; left: 3px;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle input:checked + .toggle-track { background: var(--accent); }
+    .toggle input:checked + .toggle-track::after { transform: translateX(18px); background: #fff; }
+
+    /* Slider */
+    .slider-row { padding: 4px 14px 14px; display: flex; align-items: center; gap: 10px; }
+    .slider-row input[type=range] {
+      flex: 1; -webkit-appearance: none; height: 3px;
+      background: var(--toggle-off); border-radius: 2px; outline: none;
+    }
+    .slider-row input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      border-radius: 50%; background: var(--accent); cursor: pointer;
+    }
+    .slider-pct { font-size: 12px; color: var(--accent); font-weight: 600; width: 34px; text-align: right; flex-shrink: 0; }
+
+    /* Buttons */
+    .btn-row-inner { padding: 10px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+    .action-btn {
+      flex: 1; padding: 9px; border: none; border-radius: 4px;
+      font-size: 12px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: filter 0.15s; letter-spacing: 0.02em;
+    }
+    .action-btn:hover { filter: brightness(1.15); }
+    .btn-primary   { background: var(--accent);        color: #fff; }
+    .btn-secondary { background: var(--accent-green);  color: #fff; }
+    .btn-danger    { background: var(--surface-2); color: var(--accent); border: 1px solid var(--border); }
+    #btn-reload    { background: #e03333; color: #fff; border-color: #e03333; }
+    #btn-reload:hover { filter: brightness(1.1); }
+    #btn-wipe      { background: #111; color: #fff; border-color: #333; }
+    #btn-wipe:hover { filter: brightness(1.3); }
+
+    /* Text inputs */
+    .text-input {
+      padding: 5px 8px; background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 3px; color: var(--text); font-size: 12px;
+      font-family: inherit; outline: none; width: 64px; text-align: center;
+    }
+    .text-input:focus { border-color: var(--text-muted); }
+    .text-input.wide { width: 140px; text-align: left; }
+    .input-dash { color: var(--text-dim); font-size: 13px; }
+    .input-hint { font-size: 11px; color: var(--text-dim); }
+
+    /* State buttons (pill) */
+    .state-wrap { display: flex; align-items: center; gap: 8px; }
+    .state-toast {
+      font-size: 10px; font-weight: 700; padding: 0 2px;
+      color: var(--accent-blue);
+      opacity: 0; transition: opacity 0.15s; white-space: nowrap; pointer-events: none;
+    }
+    .state-toast.visible { opacity: 1; }
+    .state-btn {
+      padding: 5px 12px; border-radius: 10px; border: none;
+      font-size: 11px; font-weight: 700; cursor: pointer;
+      min-width: 56px; text-align: center; font-family: inherit;
+      letter-spacing: 0.04em; transition: background 0.15s, color 0.15s;
+    }
+    .state-btn[data-state="off"]      { background: var(--toggle-off);  color: var(--text-muted); }
+    .state-btn[data-state="on"]       { background: var(--accent);       color: #fff; }
+    .state-btn[data-state="advanced"] { background: var(--accent-blue);  color: #fff; }
+    .state-btn[data-state="enabled"]  { background: var(--accent-green); color: #fff; min-width: 76px; }
+    .state-btn[data-state="disabled"] { background: var(--accent);       color: #fff; min-width: 76px; }
+
+    /* Filter Videos From — per-page expandable rows */
+    .filter-page-row {
+      padding: 10px 14px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .filter-expand-btn {
+      background: none; border: none; color: var(--text-dim); cursor: pointer;
+      font-size: 9px; padding: 2px 4px; line-height: 1; flex-shrink: 0;
+      font-family: monospace; transition: color 0.15s; width: 16px; text-align: center;
+    }
+    .filter-expand-btn:hover { color: var(--text); }
+    .filter-label { font-size: 13px; color: var(--text); flex: 1; }
+    .filter-page-panel { border-top: 1px solid var(--border); background: var(--surface); }
+
+    /* Per-page settings panel internals */
+    .panel-section-label {
+      padding: 7px 22px 5px; font-size: 10px; font-weight: 700;
+      color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--surface-2); border-top: 1px solid var(--border);
+    }
+    .panel-toggle-row {
+      padding: 9px 22px; display: flex; align-items: center;
+      justify-content: space-between; border-top: 1px solid var(--border);
+    }
+    .panel-toggle-row .toggle { margin-left: 12px; width: 36px; height: 20px; }
+    .panel-toggle-row .toggle-track::after { width: 14px; height: 14px; }
+    .panel-toggle-row .toggle input:checked + .toggle-track::after { transform: translateX(16px); }
+    .panel-toggle-label { font-size: 12px; color: var(--text); }
+    .panel-textarea-row { padding: 6px 22px 10px; }
+
+    /* Copy Values button + floating menu */
+    .panel-copy-wrap {
+      position: relative; padding: 8px 22px;
+      background: var(--surface-2); border-top: 1px solid var(--border);
+    }
+    .panel-copy-btn {
+      background: none; border: 1px solid var(--accent-blue); border-radius: 3px;
+      color: var(--accent-blue); font-size: 11px; font-weight: 600;
+      padding: 4px 10px; cursor: pointer; font-family: inherit; transition: background 0.15s, color 0.15s;
+    }
+    .panel-copy-btn:hover { background: var(--accent-blue); color: #fff; }
+    .panel-copy-menu {
+      display: none; position: absolute; top: calc(100% - 8px); left: 22px; z-index: 200;
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 3px;
+      min-width: 150px; box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    }
+    .panel-copy-option {
+      display: block; width: 100%; padding: 9px 14px;
+      background: none; border: none; border-bottom: 1px solid var(--border);
+      color: var(--text); font-size: 12px; font-family: inherit;
+      cursor: pointer; text-align: left; transition: background 0.15s;
+    }
+    .panel-copy-option:last-child { border-bottom: none; }
+    .panel-copy-option:hover { background: var(--surface); color: var(--accent-blue); }
+    .panel-textarea {
+      width: 100%; min-height: 56px; padding: 6px 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 3px; color: var(--text); font-size: 11px;
+      font-family: inherit; resize: vertical; outline: none; line-height: 1.5;
+    }
+    .panel-textarea:focus { border-color: var(--text-muted); }
+    .panel-inputs-row {
+      padding: 6px 22px 10px; display: flex; align-items: center;
+      gap: 8px; border-top: 1px solid var(--border);
+    }
+
+    /* Watch list */
+    .expand-btn {
+      width: 100%; padding: 11px 14px; background: var(--surface-2);
+      border: none; border-top: 1px solid var(--border); color: var(--text);
+      font-size: 12px; font-family: inherit; text-align: left;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; transition: filter 0.15s;
+    }
+    .expand-btn:hover { filter: brightness(1.1); }
+    .expand-arrow { font-size: 10px; color: var(--text-dim); transition: transform 0.2s; }
+    .expand-arrow.open { transform: rotate(180deg); }
+    #watch-list-panel { display: none; border-top: 1px solid var(--border); }
+    .watch-list-inner { max-height: 400px; overflow-y: auto; }
+    .watch-list-inner::-webkit-scrollbar { width: 4px; }
+    .watch-list-inner::-webkit-scrollbar-track { background: var(--bg); }
+    .watch-list-inner::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .cat-header {
+      padding: 6px 14px; font-size: 11px; font-weight: 700;
+      color: var(--accent); background: var(--surface); border-bottom: 1px solid var(--border); letter-spacing: 0.05em;
+    }
+    .entry-row { display: flex; align-items: center; padding: 5px 14px; border-bottom: 1px solid var(--surface-2); gap: 10px; }
+    .entry-row:hover { background: var(--surface); }
+    .remove-btn {
+      flex-shrink: 0; width: 20px; height: 20px; border: 1px solid var(--accent);
+      border-radius: 3px; background: transparent; color: var(--accent);
+      font-size: 13px; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s; font-family: inherit;
+    }
+    .remove-btn:hover { background: var(--accent); color: #fff; }
+    .entry-text { font-size: 12px; color: var(--text); word-break: break-word; flex: 1; }
+    .entry-channel { color: var(--accent-green); font-size: 11px; }
+    .list-empty { padding: 16px 14px; color: var(--text-dim); font-style: italic; font-size: 12px; }
+
+    /* Upload */
+    .upload-zone {
+      margin: 16px; border: 2px dashed var(--border); border-radius: 6px;
+      padding: 28px 20px; display: flex; flex-direction: column;
+      align-items: center; gap: 12px; cursor: pointer;
+      transition: border-color 0.2s; background: var(--surface);
+    }
+    .upload-zone:hover { border-color: var(--accent); }
+    .upload-zone-icon { font-size: 28px; line-height: 1; opacity: 0.5; }
+    .upload-zone-label { font-size: 12px; color: var(--text-muted); text-align: center; }
+    .upload-file-btn {
+      padding: 9px 28px; background: var(--accent-blue); border: none; border-radius: 4px;
+      color: #fff; font-size: 13px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: filter 0.15s; letter-spacing: 0.02em;
+    }
+    .upload-file-btn:hover { filter: brightness(1.15); }
+
+    /* Modal */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      z-index: 9998; align-items: flex-start; justify-content: center; padding-top: 60px;
+    }
+    #modal-overlay.visible { display: flex; }
+    #modal-box {
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+      width: 360px; padding: 22px 20px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+      transform: translateY(-30px); opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s ease;
+    }
+    #modal-overlay.visible #modal-box { transform: translateY(0); opacity: 1; }
+    #modal-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    #modal-sub   { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.5; }
+    .modal-btn-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .modal-btn {
+      flex: 1; padding: 8px 12px; border-radius: 4px; font-size: 12px;
+      font-family: inherit; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border); background: var(--surface); color: var(--text); transition: filter 0.15s;
+    }
+    .modal-btn:hover { filter: brightness(1.15); }
+    .modal-btn-delete {
+      display: block; width: 100%; padding: 10px; border: none; border-radius: 4px;
+      background: var(--accent); color: #fff; font-size: 13px; font-weight: 700;
+      font-family: inherit; letter-spacing: 0.06em; cursor: pointer; transition: filter 0.15s;
+    }
+    .modal-btn-delete:hover { filter: brightness(1.15); }
+
+    /* Full-page toast */
+    #toast {
+      position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+      background: var(--surface-2); border-radius: 6px; padding: 12px 20px;
+      min-width: 260px; max-width: 480px; text-align: center; z-index: 9999;
+      transition: top 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: none;
+    }
+    #toast.visible { top: 24px; }
+    #toast.success { border: 1px solid var(--accent-green); }
+    #toast.error   { border: 1px solid var(--accent); }
+    #toast-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    #toast.success #toast-title { color: var(--accent-green); }
+    #toast.error   #toast-title { color: var(--accent); }
+    #toast-sub { font-size: 11px; color: var(--text-muted); }
+
+    #dev-extras { display: none; }
+  </style>
+</head>
+<body>
+  <div id="page-content">
+  <div class="page-header">
+    <h1>Better YouTube v2 — Options</h1>
+    <button id="opt-theme-btn" data-theme="auto" title="Toggle theme">AUTO</button>
+  </div>
+
+  <!-- ── Watch List System (Privacy — top, bold border) ────────────────────── -->
+  <div class="section section-privacy">
+    <div class="section-header">Watch List System</div>
+    <div class="option-row">
+      <div>
+        <div class="option-label">Watch List System</div>
+        <div class="option-desc">Disables all list-based tracking and hiding.</div>
+      </div>
+      <div class="state-wrap">
+        <span class="state-toast" id="opt-toast-wl"></span>
+        <button class="state-btn" id="btn-wl-state" data-state="enabled">ENABLED</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Partially Watched ─────────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">Partially Watched</div>
+    <div class="option-row">
+      <div>
+        <div class="option-label">Hide Partially Watched Videos</div>
+        <div class="option-desc">Hide videos past a progress threshold.</div>
+      </div>
+      <div class="state-wrap">
+        <span class="state-toast" id="opt-toast-pw"></span>
+        <label class="toggle"><input type="checkbox" id="toggle-pw" /><div class="toggle-track"></div></label>
+      </div>
+    </div>
+    <div class="slider-row">
+      <input type="range" id="slider-pw" min="5" max="95" step="5" value="50" />
+      <span class="slider-pct" id="slider-pct">50%</span>
+    </div>
+  </div>
+
+  <!-- ── Filter Videos From ────────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">Filter Videos From</div>
+    <div id="filter-section-body"><!-- built by options.js --></div>
+  </div>
+
+  <!-- ── Watch History ─────────────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header accent">Watch History</div>
+    <div class="option-row">
+      <div>
+        <div class="option-label">Hide Custom Watch History</div>
+        <div class="option-desc">Re-hide videos already in your custom watch history list.</div>
+      </div>
+      <div class="state-wrap">
+        <span class="state-toast" id="opt-toast-rwh"></span>
+        <label class="toggle"><input type="checkbox" id="toggle-rwh" checked /><div class="toggle-track"></div></label>
+      </div>
+    </div>
+    <div class="btn-row-inner">
+      <button class="action-btn btn-primary"   id="btn-export-options">Export Watch History</button>
+      <button class="action-btn btn-secondary" id="btn-retrieve">Retrieve Account History</button>
+    </div>
+  </div>
+
+  <!-- ── Import Watch History ──────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">Import Watch History</div>
+    <div class="upload-zone" id="upload-zone">
+      <div class="upload-zone-icon">📂</div>
+      <div class="upload-zone-label">Import a previously exported Watched_Videos.txt<br>to merge with your current history</div>
+      <button class="upload-file-btn" id="btn-upload">Upload File</button>
+      <input type="file" id="file-input" accept=".txt" style="display:none;" />
+    </div>
+  </div>
+
+  <!-- ── Watch History Viewer ──────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header accent" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>Watch History</span>
+      <span id="wh-count" style="font-weight:400; color:var(--text-muted); font-size:11px;">0 entries</span>
+    </div>
+    <button class="expand-btn" id="expand-watch-list">
+      <span>Manage Watch History</span>
+      <span class="expand-arrow" id="expand-arrow">▼</span>
+    </button>
+    <div id="watch-list-panel">
+      <div style="padding: 8px 14px; border-bottom: 1px solid var(--border);">
+        <input type="text" id="watch-list-search" placeholder="Search titles..."
+          style="width:100%; padding:5px 8px; background:var(--surface-2); border:1px solid var(--border);
+          border-radius:3px; color:var(--text); font-size:12px; font-family:inherit; outline:none;" />
+      </div>
+      <div class="watch-list-inner" id="watch-list-inner">
+        <div class="list-empty">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Developer ─────────────────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">Developer</div>
+    <div class="option-row">
+      <div>
+        <div class="option-label">Show Developer Tools</div>
+        <div class="option-desc">Outlines filtered videos with flag reasons instead of hiding them.</div>
+      </div>
+      <div class="state-wrap">
+        <span class="state-toast" id="opt-toast-dev"></span>
+        <label class="toggle"><input type="checkbox" id="toggle-dev" /><div class="toggle-track"></div></label>
+      </div>
+    </div>
+    <div id="dev-extras">
+      <div class="option-row">
+        <div>
+          <div class="option-label">Enable Debug Logging</div>
+          <div class="option-desc">Log filter decisions to the browser console.</div>
+        </div>
+        <div class="state-wrap">
+          <span class="state-toast" id="opt-toast-debug"></span>
+          <label class="toggle"><input type="checkbox" id="toggle-debug" /><div class="toggle-track"></div></label>
+        </div>
+      </div>
+      <div class="btn-row-inner">
+        <button class="action-btn btn-danger" id="btn-wipe">Wipe History</button>
+        <button class="action-btn btn-danger" id="btn-reload">Force Reload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Disable WL modal ──────────────────────────────────────────────────── -->
+  <div id="modal-overlay">
+    <div id="modal-box">
+      <div id="modal-title">Disable Watch History System?</div>
+      <div id="modal-sub">Would you like to permanently delete your stored data as well?</div>
+      <div class="modal-btn-row">
+        <button class="modal-btn" id="modal-btn-disable">Just Disable History</button>
+        <button class="modal-btn" id="modal-btn-cancel">Cancel</button>
+      </div>
+      <button class="modal-btn-delete" id="modal-btn-delete">DELETE HISTORY</button>
+    </div>
+  </div>
+
+  <div id="toast"><div id="toast-title"></div><div id="toast-sub"></div></div>
+
+  </div><!-- #page-content -->
+
+  <div id="dev-video-wrap">
+    <video id="dev-video" src="https://i.imgur.com/AivdC6q.mp4" loop controls></video>
+  </div>
+
+  <script src="../list_manager.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
