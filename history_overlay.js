@@ -30,6 +30,7 @@ function initOverlay() {
   var stallSeconds = 0;
 
   // ─── Build UI ─────────────────────────────────────────────────────────────────
+
   var overlay = document.createElement('div');
   overlay.id  = '__yth_overlay';
   overlay.style.cssText = [
@@ -39,57 +40,114 @@ function initOverlay() {
     'font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif'
   ].join(';');
 
-  overlay.innerHTML = [
-    '<div id="__yth_box" style="',
-      'background:#111;border:1px solid #333;border-radius:12px;',
-      'padding:42px 48px;width:630px;text-align:center;color:#fff;',
-    '">',
-      '<div id="__yth_icon_wrap" style="margin-bottom:24px;">',
-        '<img id="__yth_icon" src="" style="width:108px;height:108px;object-fit:contain;display:block;margin:0 auto;">',
-        '<div id="__yth_icon_fb" style="display:none;font-size:78px;font-weight:700;color:#ff4444;line-height:1;">!</div>',
-      '</div>',
-      '<div id="__yth_msg" style="font-size:21px;line-height:1.6;color:#e0e0e0;margin-bottom:33px;">',
-        'Would you like to load your entire YouTube history right now?',
-        '<br><span style="font-size:18px;color:#888;">This may take several minutes to an hour.</span>',
-      '</div>',
-      '<div id="__yth_timer_row" style="display:none;margin-bottom:24px;">',
-        '<span style="font-size:19px;color:#aaa;">Time elapsed: </span>',
-        '<span id="__yth_timer" style="font-size:19px;font-weight:700;color:#fff;">0:00</span>',
-        '<span style="font-size:19px;color:#aaa;margin-left:30px;">Added: </span>',
-        '<span id="__yth_count" style="font-size:19px;font-weight:700;color:#4a9;">0</span>',
-      '</div>',
-      '<div id="__yth_btn_row" style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">',
-        '<button id="__yth_yes" style="',
-          'padding:15px 48px;background:#44aa44;border:none;border-radius:6px;',
-          'color:#fff;font-size:19px;font-weight:700;cursor:pointer;font-family:inherit;',
-        '">Yes</button>',
-        '<button id="__yth_later" style="',
-          'padding:15px 48px;background:#2a2a2a;border:1px solid #555;border-radius:6px;',
-          'color:#ccc;font-size:19px;font-weight:600;cursor:pointer;font-family:inherit;',
-        '">Maybe Later</button>',
-      '</div>',
-      '<div id="__yth_stall" style="display:none;margin-top:14px;font-size:13px;color:#882222;">',
-        'Page not loading — end of history or network problems?',
-      '</div>',
-    '</div>'
-  ].join('');
+  var box = document.createElement('div');
+  box.id = '__yth_box';
+  box.style.cssText = [
+    'background:#111', 'border:1px solid #333', 'border-radius:12px',
+    'padding:42px 48px', 'width:630px', 'text-align:center', 'color:#fff'
+  ].join(';');
 
+  // Icon wrap
+  var iconWrap = document.createElement('div');
+  iconWrap.id = '__yth_icon_wrap';
+  iconWrap.style.marginBottom = '24px';
+
+  var iconEl = document.createElement('img');
+  iconEl.id = '__yth_icon';
+  iconEl.style.cssText = 'width:108px;height:108px;object-fit:contain;display:block;margin:0 auto';
+  iconEl.src = '';
+
+  var iconFb = document.createElement('div');
+  iconFb.id = '__yth_icon_fb';
+  iconFb.style.cssText = 'display:none;font-size:78px;font-weight:700;color:#ff4444;line-height:1';
+  iconFb.textContent = '!';
+
+  iconWrap.appendChild(iconEl);
+  iconWrap.appendChild(iconFb);
+  box.appendChild(iconWrap);
+
+  // Message
+  var msgEl = document.createElement('div');
+  msgEl.id = '__yth_msg';
+  msgEl.style.cssText = 'font-size:21px;line-height:1.6;color:#e0e0e0;margin-bottom:33px';
+  msgEl.textContent = 'Would you like to load your entire YouTube history right now?';
+  var msgBr = document.createElement('br');
+  var msgSub = document.createElement('span');
+  msgSub.style.cssText = 'font-size:18px;color:#888';
+  msgSub.textContent = 'This may take several minutes to an hour.';
+  msgEl.appendChild(msgBr);
+  msgEl.appendChild(msgSub);
+  box.appendChild(msgEl);
+
+  // Timer row
+  var timerRowEl = document.createElement('div');
+  timerRowEl.id = '__yth_timer_row';
+  timerRowEl.style.cssText = 'display:none;margin-bottom:24px';
+
+  var timerLbl1 = document.createElement('span');
+  timerLbl1.style.cssText = 'font-size:19px;color:#aaa';
+  timerLbl1.textContent = 'Time elapsed: ';
+
+  var timerEl = document.createElement('span');
+  timerEl.id = '__yth_timer';
+  timerEl.style.cssText = 'font-size:19px;font-weight:700;color:#fff';
+  timerEl.textContent = '0:00';
+
+  var timerLbl2 = document.createElement('span');
+  timerLbl2.style.cssText = 'font-size:19px;color:#aaa;margin-left:30px';
+  timerLbl2.textContent = 'Added: ';
+
+  var countEl = document.createElement('span');
+  countEl.id = '__yth_count';
+  countEl.style.cssText = 'font-size:19px;font-weight:700;color:#4a9';
+  countEl.textContent = '0';
+
+  timerRowEl.appendChild(timerLbl1);
+  timerRowEl.appendChild(timerEl);
+  timerRowEl.appendChild(timerLbl2);
+  timerRowEl.appendChild(countEl);
+  box.appendChild(timerRowEl);
+
+  // Button row
+  var btnRowEl = document.createElement('div');
+  btnRowEl.id = '__yth_btn_row';
+  btnRowEl.style.cssText = 'display:flex;gap:15px;justify-content:center;flex-wrap:wrap';
+
+  var yesBtn = document.createElement('button');
+  yesBtn.id = '__yth_yes';
+  yesBtn.style.cssText = [
+    'padding:15px 48px', 'background:#44aa44', 'border:none', 'border-radius:6px',
+    'color:#fff', 'font-size:19px', 'font-weight:700', 'cursor:pointer', 'font-family:inherit'
+  ].join(';');
+  yesBtn.textContent = 'Yes';
+
+  var laterBtn = document.createElement('button');
+  laterBtn.id = '__yth_later';
+  laterBtn.style.cssText = [
+    'padding:15px 48px', 'background:#2a2a2a', 'border:1px solid #555', 'border-radius:6px',
+    'color:#ccc', 'font-size:19px', 'font-weight:600', 'cursor:pointer', 'font-family:inherit'
+  ].join(';');
+  laterBtn.textContent = 'Maybe Later';
+
+  btnRowEl.appendChild(yesBtn);
+  btnRowEl.appendChild(laterBtn);
+  box.appendChild(btnRowEl);
+
+  // Stall warning
+  var stallWarning = document.createElement('div');
+  stallWarning.id = '__yth_stall';
+  stallWarning.style.cssText = 'display:none;margin-top:14px;font-size:13px;color:#882222';
+  stallWarning.textContent = 'Page not loading — end of history or network problems?';
+  box.appendChild(stallWarning);
+
+  overlay.appendChild(box);
   document.body.appendChild(overlay);
 
-  var iconEl = document.getElementById('__yth_icon');
-  var iconFb = document.getElementById('__yth_icon_fb');
   iconEl.onerror = function() { iconEl.style.display = 'none'; iconFb.style.display = 'block'; };
   iconEl.src = chrome.runtime.getURL('icons/icon128.png');
 
-  var msgEl       = document.getElementById('__yth_msg');
-  var timerRowEl  = document.getElementById('__yth_timer_row');
-  var timerEl     = document.getElementById('__yth_timer');
-  var countEl     = document.getElementById('__yth_count');
-  var btnRowEl    = document.getElementById('__yth_btn_row');
-  var stallWarning = document.getElementById('__yth_stall');
-
-  document.getElementById('__yth_yes').addEventListener('click', startRunning);
-  document.getElementById('__yth_later').addEventListener('click', function() { stopAll(); window.close(); });
+  yesBtn.addEventListener('click', startRunning);
+  laterBtn.addEventListener('click', function() { stopAll(); window.close(); });
 
   // ─── DOM cleaner (speeds up scraping by removing thumbnails) ─────────────────
   var REMOVE_SEL = [
@@ -150,12 +208,18 @@ function initOverlay() {
     chrome.runtime.sendMessage({ action: 'yth_enable_blocker' });
     startDomCleaner();
     msgEl.style.display = 'none'; timerRowEl.style.display = 'block';
-    btnRowEl.innerHTML =
-      '<button id="__yth_stop" style="' +
-        'width:100%;padding:15px;background:#cc3333;border:none;border-radius:6px;' +
-        'color:#fff;font-size:21px;font-weight:700;cursor:pointer;font-family:inherit;' +
-        'letter-spacing:0.05em;">Stop</button>';
-    document.getElementById('__yth_stop').addEventListener('click', pauseRunning);
+
+    var stopBtn = document.createElement('button');
+    stopBtn.id = '__yth_stop';
+    stopBtn.style.cssText = [
+      'width:100%', 'padding:15px', 'background:#cc3333', 'border:none', 'border-radius:6px',
+      'color:#fff', 'font-size:21px', 'font-weight:700', 'cursor:pointer', 'font-family:inherit',
+      'letter-spacing:0.05em'
+    ].join(';');
+    stopBtn.textContent = 'Stop';
+    stopBtn.addEventListener('click', pauseRunning);
+    btnRowEl.replaceChildren(stopBtn);
+
     chrome.runtime.sendMessage({ action: 'yth_scroll_start' });
     timerHandle  = setInterval(tickTimer, 500);
     scrapeHandle = setInterval(function() { if (running) scrapeVisible(); }, 200);
@@ -167,17 +231,26 @@ function initOverlay() {
     chrome.runtime.sendMessage({ action: 'yth_scroll_stop' });
     stopDomCleaner(); stopStallDetector();
     clearInterval(timerHandle); clearInterval(scrapeHandle);
-    btnRowEl.innerHTML =
-      '<button id="__yth_continue" style="' +
-        'flex:1;padding:15px 30px;background:#44aa44;border:none;border-radius:6px;' +
-        'color:#fff;font-size:19px;font-weight:700;cursor:pointer;font-family:inherit;' +
-      '">Continue</button>' +
-      '<button id="__yth_quit" style="' +
-        'flex:1;padding:15px 30px;background:#cc3333;border:none;border-radius:6px;' +
-        'color:#fff;font-size:19px;font-weight:700;cursor:pointer;font-family:inherit;' +
-      '">Quit</button>';
-    document.getElementById('__yth_continue').addEventListener('click', startRunning);
-    document.getElementById('__yth_quit').addEventListener('click', function() { stopAll(); window.close(); });
+
+    var continueBtn = document.createElement('button');
+    continueBtn.id = '__yth_continue';
+    continueBtn.style.cssText = [
+      'flex:1', 'padding:15px 30px', 'background:#44aa44', 'border:none', 'border-radius:6px',
+      'color:#fff', 'font-size:19px', 'font-weight:700', 'cursor:pointer', 'font-family:inherit'
+    ].join(';');
+    continueBtn.textContent = 'Continue';
+    continueBtn.addEventListener('click', startRunning);
+
+    var quitBtn = document.createElement('button');
+    quitBtn.id = '__yth_quit';
+    quitBtn.style.cssText = [
+      'flex:1', 'padding:15px 30px', 'background:#cc3333', 'border:none', 'border-radius:6px',
+      'color:#fff', 'font-size:19px', 'font-weight:700', 'cursor:pointer', 'font-family:inherit'
+    ].join(';');
+    quitBtn.textContent = 'Quit';
+    quitBtn.addEventListener('click', function() { stopAll(); window.close(); });
+
+    btnRowEl.replaceChildren(continueBtn, quitBtn);
   }
 
   function stopAll() {

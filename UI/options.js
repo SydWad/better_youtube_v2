@@ -144,52 +144,125 @@ function copyPagePanel(fromKey, toKey) {
   });
 }
 
-function buildPagePanelHTML(key) {
+function buildPagePanel(key) {
   var p = 'pg-' + key + '-';
-  function toggleRow(id, label) {
-    return '<div class="panel-toggle-row">' +
-      '<span class="panel-toggle-label">' + label + '</span>' +
-      '<div class="state-wrap">' +
-        '<span class="state-toast" id="toast-' + id + '"></span>' +
-        '<label class="toggle"><input type="checkbox" id="' + id + '" /><div class="toggle-track"></div></label>' +
-      '</div>' +
-    '</div>';
+  var frag = document.createDocumentFragment();
+
+  function makeSection(text) {
+    var el = document.createElement('div');
+    el.className = 'panel-section-label';
+    el.textContent = text;
+    return el;
   }
-  var copyOptions = '';
+
+  function makeToggleRow(id, label) {
+    var row = document.createElement('div');
+    row.className = 'panel-toggle-row';
+    var lbl = document.createElement('span');
+    lbl.className = 'panel-toggle-label';
+    lbl.textContent = label;
+    var wrap = document.createElement('div');
+    wrap.className = 'state-wrap';
+    var toast = document.createElement('span');
+    toast.className = 'state-toast';
+    toast.id = 'toast-' + id;
+    var toggleLabel = document.createElement('label');
+    toggleLabel.className = 'toggle';
+    var inp = document.createElement('input');
+    inp.type = 'checkbox';
+    inp.id = id;
+    var track = document.createElement('div');
+    track.className = 'toggle-track';
+    toggleLabel.appendChild(inp);
+    toggleLabel.appendChild(track);
+    wrap.appendChild(toast);
+    wrap.appendChild(toggleLabel);
+    row.appendChild(lbl);
+    row.appendChild(wrap);
+    return row;
+  }
+
+  var copyWrap = document.createElement('div');
+  copyWrap.className = 'panel-copy-wrap';
+  var copyBtn = document.createElement('button');
+  copyBtn.className = 'panel-copy-btn';
+  copyBtn.id = 'copy-btn-' + key;
+  copyBtn.textContent = 'Copy Values:';
+  var copyMenu = document.createElement('div');
+  copyMenu.className = 'panel-copy-menu';
+  copyMenu.id = 'copy-menu-' + key;
   PAGE_DEFS.forEach(function(d) {
     if (d.key === key) return;
-    copyOptions += '<button class="panel-copy-option" data-from="' + d.key + '">' + d.label + '</button>';
+    var opt = document.createElement('button');
+    opt.className = 'panel-copy-option';
+    opt.dataset.from = d.key;
+    opt.textContent = d.label;
+    copyMenu.appendChild(opt);
   });
-  return (
-    '<div class="panel-copy-wrap">' +
-      '<button class="panel-copy-btn" id="copy-btn-' + key + '">Copy Values:</button>' +
-      '<div class="panel-copy-menu" id="copy-menu-' + key + '">' + copyOptions + '</div>' +
-    '</div>' +
-    '<div class="panel-section-label">Hide</div>' +
-    toggleRow(p + 'hide-shorts',    'Shorts') +
-    toggleRow(p + 'hide-playlists', 'Playlists') +
-    toggleRow(p + 'hide-members',   'Members Only') +
-    toggleRow(p + 'hide-live',      'Live Streams') +
-    toggleRow(p + 'hide-autodub',   'Auto-Dubbed') +
-    toggleRow(p + 'hide-upcoming',  'Upcoming / Scheduled') +
-    toggleRow(p + 'hide-watched',   'Watched Videos') +
-    '<div class="panel-section-label">Word Blacklist</div>' +
-    toggleRow(p + 'blacklist-enabled', 'Enable Blacklist') +
-    '<div class="panel-textarea-row">' +
-      '<textarea id="' + p + 'blacklist-words" placeholder="Words, comma separated" class="panel-textarea"></textarea>' +
-    '</div>' +
-    '<div class="panel-section-label">Filter by Length (H:MM)</div>' +
-    '<div class="panel-inputs-row">' +
-      '<input class="text-input" id="' + p + 'length-min" type="text" placeholder="∞" maxlength="5" />' +
-      '<span class="input-dash">—</span>' +
-      '<input class="text-input" id="' + p + 'length-max" type="text" placeholder="∞" maxlength="5" />' +
-    '</div>' +
-    '<div class="panel-section-label">Minimum View Count</div>' +
-    '<div class="panel-inputs-row">' +
-      '<input class="text-input wide" id="' + p + 'view-count" type="text" placeholder="" maxlength="15" />' +
-      '<span class="input-hint">views</span>' +
-    '</div>'
-  );
+  copyWrap.appendChild(copyBtn);
+  copyWrap.appendChild(copyMenu);
+  frag.appendChild(copyWrap);
+
+  frag.appendChild(makeSection('Hide'));
+  frag.appendChild(makeToggleRow(p + 'hide-shorts',       'Shorts'));
+  frag.appendChild(makeToggleRow(p + 'hide-playlists',    'Playlists'));
+  frag.appendChild(makeToggleRow(p + 'hide-members',      'Members Only'));
+  frag.appendChild(makeToggleRow(p + 'hide-live',         'Live Streams'));
+  frag.appendChild(makeToggleRow(p + 'hide-autodub',      'Auto-Dubbed'));
+  frag.appendChild(makeToggleRow(p + 'hide-upcoming',     'Upcoming / Scheduled'));
+  frag.appendChild(makeToggleRow(p + 'hide-watched',      'Watched Videos'));
+
+  frag.appendChild(makeSection('Word Blacklist'));
+  frag.appendChild(makeToggleRow(p + 'blacklist-enabled', 'Enable Blacklist'));
+  var taRow = document.createElement('div');
+  taRow.className = 'panel-textarea-row';
+  var ta = document.createElement('textarea');
+  ta.id = p + 'blacklist-words';
+  ta.placeholder = 'Words, comma separated';
+  ta.className = 'panel-textarea';
+  taRow.appendChild(ta);
+  frag.appendChild(taRow);
+
+  frag.appendChild(makeSection('Filter by Length (H:MM)'));
+  var lenRow = document.createElement('div');
+  lenRow.className = 'panel-inputs-row';
+  var lenMin = document.createElement('input');
+  lenMin.className = 'text-input';
+  lenMin.id = p + 'length-min';
+  lenMin.type = 'text';
+  lenMin.placeholder = '∞';
+  lenMin.maxLength = 5;
+  var dash = document.createElement('span');
+  dash.className = 'input-dash';
+  dash.textContent = '—';
+  var lenMax = document.createElement('input');
+  lenMax.className = 'text-input';
+  lenMax.id = p + 'length-max';
+  lenMax.type = 'text';
+  lenMax.placeholder = '∞';
+  lenMax.maxLength = 5;
+  lenRow.appendChild(lenMin);
+  lenRow.appendChild(dash);
+  lenRow.appendChild(lenMax);
+  frag.appendChild(lenRow);
+
+  frag.appendChild(makeSection('Minimum View Count'));
+  var vcRow = document.createElement('div');
+  vcRow.className = 'panel-inputs-row';
+  var vcInput = document.createElement('input');
+  vcInput.className = 'text-input wide';
+  vcInput.id = p + 'view-count';
+  vcInput.type = 'text';
+  vcInput.placeholder = '';
+  vcInput.maxLength = 15;
+  var vcHint = document.createElement('span');
+  vcHint.className = 'input-hint';
+  vcHint.textContent = 'views';
+  vcRow.appendChild(vcInput);
+  vcRow.appendChild(vcHint);
+  frag.appendChild(vcRow);
+
+  return frag;
 }
 
 function wirePagePanel(key) {
@@ -275,13 +348,33 @@ function buildFilterSection() {
     // Header row
     var row = document.createElement('div');
     row.className = 'filter-page-row';
-    row.innerHTML =
-      '<button class="filter-expand-btn" id="fexp-' + key + '" aria-label="Expand">&#9654;</button>' +
-      '<span class="filter-label">' + def.label + '</span>' +
-      '<div class="state-wrap">' +
-        '<span class="state-toast" id="opt-toast-filter-' + key + '"></span>' +
-        '<button class="state-btn" id="opt-btn-filter-' + key + '" data-state="' + def.defaultState + '">' + OPT_STATE_TEXT[def.defaultState] + '</button>' +
-      '</div>';
+
+    var expandBtnEl = document.createElement('button');
+    expandBtnEl.className = 'filter-expand-btn';
+    expandBtnEl.id = 'fexp-' + key;
+    expandBtnEl.setAttribute('aria-label', 'Expand');
+    expandBtnEl.textContent = '▶';
+    row.appendChild(expandBtnEl);
+
+    var filterLabel = document.createElement('span');
+    filterLabel.className = 'filter-label';
+    filterLabel.textContent = def.label;
+    row.appendChild(filterLabel);
+
+    var stateWrap = document.createElement('div');
+    stateWrap.className = 'state-wrap';
+    var toastSpan = document.createElement('span');
+    toastSpan.className = 'state-toast';
+    toastSpan.id = 'opt-toast-filter-' + key;
+    stateWrap.appendChild(toastSpan);
+    var stateBtn = document.createElement('button');
+    stateBtn.className = 'state-btn';
+    stateBtn.id = 'opt-btn-filter-' + key;
+    stateBtn.dataset.state = def.defaultState;
+    stateBtn.textContent = OPT_STATE_TEXT[def.defaultState];
+    stateWrap.appendChild(stateBtn);
+    row.appendChild(stateWrap);
+
     container.appendChild(row);
 
     // Settings panel
@@ -289,11 +382,10 @@ function buildFilterSection() {
     panel.className = 'filter-page-panel';
     panel.id = 'fpanel-' + key;
     panel.style.display = 'none';
-    panel.innerHTML = buildPagePanelHTML(key);
+    panel.appendChild(buildPagePanel(key));
     container.appendChild(panel);
 
     // Entire row (except state-btn) toggles expand; only one panel open at a time
-    var expandBtnEl = document.getElementById('fexp-' + key);
     row.addEventListener('click', function(e) {
       if (e.target.closest('.state-btn')) return;
       var open = panel.style.display !== 'none';
@@ -303,15 +395,14 @@ function buildFilterSection() {
           var op = document.getElementById('fpanel-' + d.key);
           var ob = document.getElementById('fexp-'   + d.key);
           if (op) op.style.display = 'none';
-          if (ob) ob.innerHTML = '&#9654;';
+          if (ob) ob.textContent = '▶';
         });
       }
       panel.style.display = open ? 'none' : 'block';
-      expandBtnEl.innerHTML = open ? '&#9654;' : '&#9660;';
+      expandBtnEl.textContent = open ? '▶' : '▼';
     });
 
     // State btn click
-    var stateBtn = document.getElementById('opt-btn-filter-' + key);
     stateBtn.addEventListener('click', function() {
       var idx  = OPT_STATE_CYCLE.indexOf(stateBtn.dataset.state);
       var next = OPT_STATE_CYCLE[(idx + 1) % OPT_STATE_CYCLE.length];

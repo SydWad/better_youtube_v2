@@ -1,19 +1,25 @@
 // background.js
 // 1. Relays scroll start/stop messages from history_overlay.js to history_scroller.js
-// 2. Enables/disables the thumbnail-blocking network ruleset for the retrieve flow
+// 2. Enables/disables thumbnail blocking via webRequest for the retrieve flow
+
+var blockerActive = false;
+
+function blockRequest() { return { cancel: true }; }
 
 function enableBlocker() {
-  chrome.declarativeNetRequest.updateEnabledRulesets({
-    enableRulesetIds:  ['ruleset_1'],
-    disableRulesetIds: []
-  });
+  if (blockerActive) return;
+  blockerActive = true;
+  chrome.webRequest.onBeforeRequest.addListener(
+    blockRequest,
+    { urls: ['*://i.ytimg.com/*'] },
+    ['blocking']
+  );
 }
 
 function disableBlocker() {
-  chrome.declarativeNetRequest.updateEnabledRulesets({
-    enableRulesetIds:  [],
-    disableRulesetIds: ['ruleset_1']
-  });
+  if (!blockerActive) return;
+  blockerActive = false;
+  chrome.webRequest.onBeforeRequest.removeListener(blockRequest);
 }
 
 chrome.runtime.onMessage.addListener(function(msg, sender) {

@@ -1,8 +1,18 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Better YouTube v2",
   "version": "1.0.0",
   "description": "Customize the YouTube interface and store a permanent, searchable watch history.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "better-youtube-v2@sydwad",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": ["none"],
+        "optional": []
+      }
+    }
+  },
   "icons": {
     "16":  "icons/icon16.png",
     "48":  "icons/icon48.png",
@@ -13,26 +23,19 @@
     "unlimitedStorage",
     "downloads",
     "tabs",
-    "declarativeNetRequest",
-    "declarativeNetRequestFeedback"
-  ],
-  "host_permissions": [
+    "webRequest",
+    "webRequestBlocking",
     "https://www.youtube.com/*",
     "*://i.ytimg.com/*"
   ],
-  "declarative_net_request": {
-    "rule_resources": [{
-      "id": "ruleset_1",
-      "enabled": false,
-      "path": "rules.json"
-    }]
-  },
-  "web_accessible_resources": [{
-    "resources": ["icons/icon128.png", "icons/icon48.png", "icons/icon16.png"],
-    "matches": ["https://www.youtube.com/*"]
-  }],
+  "web_accessible_resources": [
+    "icons/icon128.png",
+    "icons/icon48.png",
+    "icons/icon16.png"
+  ],
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"],
+    "persistent": true
   },
   "content_scripts": [
     {
@@ -60,7 +63,7 @@
       "run_at": "document_idle"
     }
   ],
-  "action": {
+  "browser_action": {
     "default_popup": "UI/popup.html",
     "default_icon": {
       "16":  "icons/icon16.png",
