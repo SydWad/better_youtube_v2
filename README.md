@@ -4,19 +4,26 @@ A Chrome/Brave browser extension that gives you full control over your YouTube b
 
 ## Features
 
-- Hide previously watched videos using a custom persistent watch history list
-- Automatically capture videos marked "Not Interested" as watched
-- Count partially watched videos as watched (configurable threshold)
-- Filter videos by length (minimum and maximum)
-- Hide YouTube Shorts, including the Shorts sidebar button and channel tab
-- Hide playlists and mix recommendations
-- Hide members-only content
-- Hide live streams
-- Hide videos by keyword or phrase (word blacklist)
-- Control filtering per page: home feed, subscriptions, channel pages, search results, and sidebars independently
-- Export and import your watch history as a portable categorized .txt file
-- Retrieve your full existing YouTube watch history via the built-in history importer
-- Enable or disable the entire extension with a single button
+- Filter YouTube by page (Home, Subs, Sidebars, Channels, Search) — ON / OFF / ADVANCED per page:
+- Hide Shorts
+- Hide Members-Only videos
+- Hide Live Streams
+- Hide Auto-Dubbed videos
+- Hide Playlists
+- Hide Upcoming / Scheduled videos
+- Hide partially-watched videos (progress bar threshold)
+- Hide by minimum view count
+- Hide by video length range
+- Word blacklist (hide by title/channel keyword)
+- Permanent local watch history (auto-saves watched videos)
+- "Not Interested" click saves to watch history
+- Retrieve full YouTube history (auto-scroll + scrape)
+- Export watch history to .txt
+- Import watch history from .txt
+- Per-page advanced filter settings (all filters independently configurable per page)
+- Copy filter settings from one page to another
+- Extension enable/disable toggle
+- Dark / Light theme support
 
 ## Installation
 
