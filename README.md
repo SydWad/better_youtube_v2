@@ -27,11 +27,12 @@ A Chrome/Brave browser extension that gives you full control over your YouTube b
 
 ## Installation
 
-1. Download or clone this repository
-2. Open `chrome://extensions` or `brave://extensions`
-3. Enable **Developer Mode**
-4. Click **Load unpacked** and select the extension folder
-5. Navigate to YouTube — the extension is active immediately
+1. Download or clone this repository to your computer.
+2. Open a new tab in Firefox and navigate to about:debugging.
+3. Click on This Firefox in the left-hand sidebar.
+4. Click the Load Temporary Add-on... button.
+5. Open your extension folder and select the manifest.json file (or any file within the directory).
+6. Navigate to YouTube — the extension is active immediately.
 
 ## Usage
 
